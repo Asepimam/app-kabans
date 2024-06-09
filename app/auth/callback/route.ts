@@ -13,7 +13,17 @@ export async function GET(request: Request) {
     const supabase = createClient();
     await supabase.auth.exchangeCodeForSession(code);
   }
+  
+  // jika user berhasil login, maka lakukan insert data ke table profile
+  const supabase = createClient();
+  const { data:{user} } = await supabase.auth.getUser();
+  console.log(user);
+  const { data } =  await supabase.from('profiles').insert([
+    { user_id:user?.id }
+  ]).select();
+  console.log(data);
+  
 
   // URL to redirect to after sign up process completes
-  return NextResponse.redirect(`${origin}/protected`);
+  return NextResponse.redirect(`${origin}/dasboard`);
 }

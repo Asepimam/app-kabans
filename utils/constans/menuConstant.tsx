@@ -4,9 +4,15 @@ import Link from "next/link";
 import { FaHome } from "react-icons/fa";
 import { GoProjectRoadmap } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
-import { RiTeamLine } from "react-icons/ri";
+import { createClient } from "../supabase/client";
 
 type MenuItem = Required<MenuProps>["items"][number];
+const onLogout = async () => {
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  return window.location.replace("/");
+};
+
 export const MENU_ITEMS: MenuItem[] = [
   {
     key: "Home_sidebar",
@@ -23,15 +29,6 @@ export const MENU_ITEMS: MenuItem[] = [
     label: (
       <Link href="/dasboard/projects" target="_self" rel="noopener noreferrer">
         Projects
-      </Link>
-    ),
-  },
-  {
-    key: "Teams_sidebar",
-    icon: <RiTeamLine />,
-    label: (
-      <Link href="/dasboard/teams" target="_self" rel="noopener noreferrer">
-        Teams
       </Link>
     ),
   },
@@ -53,7 +50,11 @@ export const MENU_ITEMS: MenuItem[] = [
       },
       {
         key: "Setting_logout",
-        label: <Button type="primary">Logout</Button>,
+        label: (
+          <Button onClick={onLogout} type="primary">
+            Logout
+          </Button>
+        ),
       },
     ],
   },

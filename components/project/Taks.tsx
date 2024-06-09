@@ -1,19 +1,19 @@
-"use client";
+// import { Task } from "@/utils/types/task";
+// // import { Avatar} from "antd";
+// // import CardTask from "../CardTask";
+// import CardTask from "../CardTask";
 
-import { TaskProps } from "@/utils/types/task";
-import { Card } from "antd";
-import { Draggable } from "../Draggable";
-const { Meta } = Card;
-const Taks = ({ props }: { props: TaskProps }) => {
-  const { id, title, expire_date } = props;
-  return (
-    <>
-      <Draggable id={id}>
-        <Card>
-          <Meta title={title} description={expire_date} />
-        </Card>
-      </Draggable>
-    </>
-  );
-};
-export default Taks;
+// // import { FaEllipsis } from "react-icons/fa6";
+// const Taks = ({ props }: { props: Task }) => {
+//   const { id, title, expire_date } = props;
+//   // ubah date ke format yang lebih mudah dibaca
+//   const date = new Date(expire_date).toLocaleDateString();
+//   const time = new Date(expire_date).toLocaleTimeString();
+
+//   return (
+//     <>
+//       <CardTask content={title} expireDate={date} expireTime={time} id={id} onDeleteHandler={}/>
+//     </>
+//   );
+// };
+// export default Taks;

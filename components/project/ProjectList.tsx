@@ -5,7 +5,7 @@ import { ProjectCard } from "./CardProject";
 export default function ListProject({
   projectsProps,
 }: {
-  projectsProps: any[];
+  projectsProps: any[] | null;
 }) {
   const [projects, setProjects]: any = useState(projectsProps);
   return (

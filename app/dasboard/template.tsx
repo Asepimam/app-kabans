@@ -1,5 +1,5 @@
 "use client";
-import { SiderMenuComponent } from "@/components/SideMenu";
+import SiderMenuComponent from "@/components/SideMenu";
 import { Layout } from "antd";
 import { useState } from "react";
 const { Content } = Layout;

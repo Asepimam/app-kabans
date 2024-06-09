@@ -1,4 +1,4 @@
 export type SideMenuProps = {
-    collapsed: boolean;
+  collapsed: boolean;
   setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 };
