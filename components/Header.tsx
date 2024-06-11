@@ -1,7 +1,19 @@
 "use client";
+import { createClient } from "@/utils/supabase/client";
 import { Button } from "antd";
 
 export default function Header() {
+  const supabase = createClient();
+  const onStarterClick = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = "/login";
+    } else {
+      window.location.href = "/dashboard";
+    }
+  };
   return (
     <div className="flex flex-col gap-16 items-center">
       <div
@@ -25,7 +37,7 @@ export default function Header() {
             marginTop: "20px",
             boxShadow: "0 3px 1px 0 rgba(0, 0, 0, 0.2)",
           }}
-          href="/auth/login">
+          onClick={onStarterClick}>
           Get Started
         </Button>
       </div>
