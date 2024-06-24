@@ -2,21 +2,18 @@
 import { formatTimeDifference } from "@/utils/helpers/expired";
 import { Task } from "@/utils/types/task";
 import { useDraggable } from "@dnd-kit/core";
-import { useMemo, useState } from "react";
-import DeleteTask from "./DeleteTask";
-import TaskDrawer from "./TaskDrawer";
+import { useCallback, useMemo, useState } from "react";
+import TaskDetail from "./TaskDetail";
 
 interface CardTaskProps {
   task: Task;
 }
 
 const CardTask = ({ task }: CardTaskProps) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
   const { id, title, start_task, end_task } = task;
+  const [open, setOpen] = useState(false);
 
-  const expireTask = formatTimeDifference(start_task, end_task);
-  console.log(expireTask);
+  const expireTask = formatTimeDifference(end_task, start_task);
 
   const itemIdentifier = useMemo(() => id, [id]);
   const { transform, attributes, listeners, setNodeRef } = useDraggable({
@@ -31,34 +28,62 @@ const CardTask = ({ task }: CardTaskProps) => {
     return undefined;
   }, [transform]);
 
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseDown = useCallback((event: any) => {
+    setStartPosition({ x: event.clientX, y: event.clientY });
+  }, []);
+
+  const handleMouseUp = useCallback(
+    (event: any) => {
+      const endPosition = { x: event.clientX, y: event.clientY };
+      const distance = Math.sqrt(
+        Math.pow(endPosition.x - startPosition.x, 2) +
+          Math.pow(endPosition.y - startPosition.y, 2),
+      );
+
+      if (distance < 5) {
+        onClickCard();
+      }
+    },
+    [startPosition, id],
+  );
+
+  const onClickCard = () => {
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const onSubmit = (values: any) => {
+    console.log(values);
+    setOpen(false);
+  };
+
   return (
     <>
-      <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 min-h-[180px] mt-3">
+      <TaskDetail open={open} onClose={onClose} onSubmit={onSubmit}>
         <div
           style={style}
-          className="h-6 bg-transparent w-full"
+          className="bg-transparent w-full h-full cursor-pointer"
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
           ref={setNodeRef}
           {...attributes}
-          {...listeners}></div>
-        <div className="flex items-center m-5">
-          <div className="flex flex-col">
-            <p className="text-lg text-gray-800 font-semibold">{title}</p>
-            <div className="flex items-center justify-center">
-              <p className="text-sm text-gray-500">Expire Date:</p>
-              <p className="text-sm text-gray-800 ml-2">{expireTask}</p>
+          {...listeners}>
+          <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 min-h-[96px] mt-3">
+            <div className="flex flex-col content-center">
+              <p className="text-lg text-gray-800 font-semibold">{title}</p>
+              <div className="flex gap-2">
+                <p className="text-sm text-gray-500">Expired:</p>
+                <p className="text-sm text-gray-800">{expireTask}</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex justify-between items-center mt-5 px-5">
-          <div className="flex items-center">
-            <TaskDrawer create={false} task={task} />
-          </div>
-          <div className="border-l border-gray-400 h-6 mx-3"></div>
-          <div className="flex items-center">
-            <DeleteTask id={id} />
-          </div>
-        </div>
-      </div>
+      </TaskDetail>
     </>
   );
 };

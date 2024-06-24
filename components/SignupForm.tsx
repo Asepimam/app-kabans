@@ -35,7 +35,6 @@ export const RegisterForm = () => {
       console.error(error);
       return;
     }
-    console.log(data);
   };
 
   const loginGoogle = async () => {
@@ -46,7 +45,6 @@ export const RegisterForm = () => {
       console.error(error);
       return;
     }
-    console.log(data);
   };
   const loginGithub = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -56,7 +54,6 @@ export const RegisterForm = () => {
       console.error(error);
       return;
     }
-    console.log(data);
   };
   return (
     <Form

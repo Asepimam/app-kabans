@@ -6,9 +6,6 @@ import { Droppable } from "../Dropable";
 import TaskDrawer from "../TaskDrawer";
 
 const Stage = ({ stageName, tasks, id_stage, onHandleDelete }: StageProps) => {
-  // const columnIdentifier = useMemo(() => _.camel(stageName), [stageName]);
-  console.log("tasks", tasks);
-
   const amounts = useMemo(
     () => tasks?.filter((elm) => elm.stage_id === id_stage).length,
     [tasks, id_stage],
@@ -35,12 +32,12 @@ const Stage = ({ stageName, tasks, id_stage, onHandleDelete }: StageProps) => {
   return (
     <div className="flex flex-col items-center" key={`column-${id_stage}`}>
       <div
-        className={`flex flex-col ${bgColorClass} rounded-lg shadow-lg m-2 w-80`}>
+        className={`flex flex-col ${bgColorClass} rounded-lg shadow-lg m-2 min-w-[250px]`}>
         <div className="flex flex-row justify-between items-center bg-zinc-400 p-2 sticky top-0 h-20">
           <h1 className=" text-gray-800">{stageName}</h1>
           <p className="text-gray-800">{amounts}</p>
         </div>
-        <div className="flex flew-col justify-between items-center p-2 min-h-[500px]">
+        <div className="flex flex-col justify-between items-center px-4 h-auto">
           <Droppable id={id_stage}>
             {tasks?.map((task: Task) => (
               <CardTask key={`draggable-element-${task.id}`} task={task} />

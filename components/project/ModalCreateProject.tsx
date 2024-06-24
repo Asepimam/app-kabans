@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/utils/supabase/client";
+import { useProject } from "@/utils/contexts/projectContext";
 import { Button, Input, Modal } from "antd";
 import React, { useRef, useState } from "react";
 import type { DraggableData, DraggableEvent } from "react-draggable";
@@ -8,7 +8,7 @@ import Draggable from "react-draggable";
 const { TextArea } = Input;
 
 export default function ModalCreateProject() {
-  const supabase = createClient();
+  const { createProject } = useProject();
   const [open, setOpen] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [bounds, setBounds] = useState({
@@ -18,7 +18,7 @@ export default function ModalCreateProject() {
     right: 0,
   });
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [descriptions, setDescriptions] = useState("");
   const draggleRef = useRef<HTMLDivElement>(null);
 
   const showModal = () => {
@@ -27,38 +27,15 @@ export default function ModalCreateProject() {
 
   const handleOk = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-
-    const { data: projectData, error: projectError } = await supabase
-      .from("projects")
-      .insert([{ project_name: title, description }])
-      .select();
-
-    if (projectError) {
-      console.error("Error inserting project: ", projectError);
-      return;
-    }
-    console.log(projectData);
-
-    const { error: stageError } = await supabase.from("stages").insert([
-      { project_id: projectData[0].id, stage_name: "To Do" },
-      { project_id: projectData[0].id, stage_name: "In Progress" },
-      { project_id: projectData[0].id, stage_name: "Review" },
-      { project_id: projectData[0].id, stage_name: "Done" },
-    ]);
-
-    if (stageError) {
-      console.error("Error inserting stage: ", stageError);
-      return;
-    }
-
+    await createProject(title, descriptions);
     setOpen(false);
     setTitle("");
-    setDescription("");
+    setDescriptions("");
   };
   const handleCancel = (e: React.MouseEvent<HTMLElement>) => {
     setOpen(false);
     setTitle("");
-    setDescription("");
+    setDescriptions("");
   };
 
   const onStart = (_event: DraggableEvent, uiData: DraggableData) => {
@@ -125,8 +102,8 @@ export default function ModalCreateProject() {
           onChange={(e) => setTitle(e.target.value)}
         />
         <TextArea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={descriptions}
+          onChange={(e) => setDescriptions(e.target.value)}
           placeholder="Description your project"
           autoSize={{ minRows: 2, maxRows: 6 }}
         />

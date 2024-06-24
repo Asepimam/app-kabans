@@ -1,6 +1,5 @@
 "use client";
 import { useDroppable } from "@dnd-kit/core";
-import { useMemo } from "react";
 
 export interface IDropable {
   id: string;
@@ -8,20 +7,13 @@ export interface IDropable {
 }
 
 export const Droppable: React.FC<IDropable> = ({ children, id }) => {
-  const { isOver, setNodeRef } = useDroppable({ id });
-  const style = useMemo(
-    () => ({
-      opacity: isOver ? 0.5 : 1,
-    }),
-    [isOver],
-  );
+  const { setNodeRef } = useDroppable({ id });
 
   return (
     <div
       ref={setNodeRef}
       style={{
-        ...style,
-        height: "100%",
+        minHeight: "500px",
         width: "100%",
       }}>
       {children}

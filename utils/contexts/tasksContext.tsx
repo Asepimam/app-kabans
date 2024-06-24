@@ -5,6 +5,7 @@ import React, { createContext, useCallback, useContext, useState } from "react";
 
 const TasksContext = createContext<{
   tasks: Task[];
+
   fetchTasks: () => void;
   updateTaskStage: (id: string, stageId: string) => void;
   deleteTask: (id: string) => void;
@@ -21,6 +22,7 @@ const TasksContext = createContext<{
 
 export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
   const supabase = createClient();
 
   const fetchTasks = useCallback(async () => {
@@ -54,6 +56,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
   const createTask = useCallback(
     async (task: Task) => {
       const { data, error } = await supabase.from("tasks").insert([task]);
+
       if (error) {
         console.error("Error creating task: ", error);
       } else {

@@ -1,42 +1,25 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Form, type FormProps, Input } from "antd";
-import Link from "next/link";
-import { z } from "zod";
+import { Button } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { FaGithub, FaGoogle } from "react-icons/fa";
+import { SiIbm } from "react-icons/si";
 
-import { FaGoogle } from "react-icons/fa";
-// import { SiIbm } from "react-icons/si";
-export type FormLoginType = {
-  email: string;
-  password: string;
-  remember: boolean;
-};
-
-export const LoginForm = () => {
-  const emailSchema = z.string().email("Invalid email address");
+export const LoginButtons = () => {
   const supabase = createClient();
-  const validateEmail = (value: string) => {
-    try {
-      emailSchema.parse(value);
-      return Promise.resolve();
-    } catch (error: any) {
-      return Promise.reject(error.errors[0].message);
+  const [authURL, setAuthURL] = useState<string>();
+  const ref = useRef(false);
+
+  useEffect(() => {
+    if (ref.current) {
+      fetch("/api/auth/authURL", { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+          setAuthURL(data);
+        });
     }
-  };
-  const onFinish: FormProps<FormLoginType>["onFinish"] = async (
-    value: FormLoginType,
-  ) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: value.email,
-      password: value.password,
-    });
-    if (error) {
-      console.error(error);
-      return;
-    }
-    console.log(data);
-  };
+    ref.current = true;
+  }, []);
 
   const loginGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -45,96 +28,57 @@ export const LoginForm = () => {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+    if (error) {
+      console.error(error);
+      return;
+    }
     console.log(data);
   };
-  return (
-    <Form
-      name="normal_login"
-      className="login-form"
-      initialValues={{ remember: true }}
-      onFinish={onFinish}>
-      <Form.Item
-        hasFeedback
-        name="email"
-        rules={[
-          {
-            validator: (rule, value) => validateEmail(value),
-          },
-        ]}>
-        <Input
-          prefix={<UserOutlined className="site-form-item-icon" />}
-          placeholder="Email"
-          size="middle"
-        />
-      </Form.Item>
-      <Form.Item
-        hasFeedback
-        name="password"
-        rules={[
-          {
-            validator: (rule, value) => {
-              if (!value) {
-                return Promise.reject("Please input your Password!");
-              }
-              if (value.length < 8) {
-                return Promise.reject("Password must be at least 8 characters");
-              }
-              if (!/[A-Z]/.test(value)) {
-                return Promise.reject(
-                  "Password must include at least one capital letter",
-                );
-              }
-              if (!/[a-z]/.test(value)) {
-                return Promise.reject(
-                  "Password must include at least one lowercase letter",
-                );
-              }
-              if (!/[0-9]/.test(value)) {
-                return Promise.reject(
-                  "Password must include at least one number",
-                );
-              }
-              if (!/[!@#$%^&*]/.test(value)) {
-                return Promise.reject(
-                  "Password must include at least one special character",
-                );
-              }
 
-              return Promise.resolve();
-            },
-          },
-        ]}>
-        <Input
-          prefix={<LockOutlined className="site-form-item-icon" />}
-          type="password"
-          placeholder="Password"
-          size="middle"
-        />
-      </Form.Item>
-      <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="login-form-button"
-          block
-          style={{
-            marginBottom: 10,
-          }}>
-          Log in
-        </Button>
-        Or <Link href="/register">"Register now!"</Link>
-      </Form.Item>
-      <div className="flex items-center justify-center gap-1 px-10">
-        <Button onClick={loginGoogle}>
-          <FaGoogle className="text-[25px]" />
-        </Button>
-        {/* <Button onClick={loginGithub}>
-          <FaGithub className="text-[25px]" />
-        </Button> */}
-        {/* <Button onClick={loginGithub}>
-          <SiIbm className="text-[25px]" />
-        </Button> */}
-      </div>
-    </Form>
+  const loginIbm = async () => {
+    if (authURL) {
+      window.location.href = authURL;
+    }
+  };
+  const loginGithub = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.error(error);
+      return;
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <Button
+        type="primary"
+        onClick={loginGoogle}
+        className="flex items-center gap-2 w-full"
+        size="large"
+        icon={<FaGoogle />}>
+        Login with Google
+      </Button>
+      <Button
+        type="primary"
+        onClick={loginGithub}
+        size="large"
+        className="flex items-center gap-2 w-full"
+        icon={<FaGithub />}>
+        Login with Github
+      </Button>
+      <Button
+        type="primary"
+        onClick={loginIbm}
+        size="large"
+        className="flex items-center gap-2 w-full"
+        icon={<SiIbm />}>
+        Login with IBM
+      </Button>
+    </div>
   );
 };

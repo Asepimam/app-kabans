@@ -1,5 +1,3 @@
-import { useTasks } from "@/utils/contexts/tasksContext";
-import { Task } from "@/utils/types/task";
 import {
   Button,
   Col,
@@ -11,85 +9,31 @@ import {
   Select,
   Space,
 } from "antd";
-import dayjs from "dayjs";
-import React, { useState } from "react";
+import React from "react";
 
 const { Option } = Select;
-
-export type TaskDrawerProps = {
-  create?: boolean;
-  task?: Task;
-  id_stage?: string;
-};
 
 export type Users = {
   user: string;
   id: string;
 };
-const TaskDrawer: React.FC<TaskDrawerProps> = ({ create, task, id_stage }) => {
-  const [open, setOpen] = useState(false);
-  const [teams, setTeams] = useState<Users[]>([]);
+export default function TaskDetail({
+  children,
+  open,
+  onClose,
+  onSubmit,
+}: {
+  children: React.ReactNode;
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (values: any) => void;
+}) {
   const [form] = Form.useForm();
-  const { createTask, updateTask } = useTasks();
-
-  // useEffect(() => {
-  //   if (task && !create) {
-  //     form.setFieldsValue({
-  //       name: task.title,
-  //       dateTime: [dayjs(task.start_task), dayjs(task.end_task)],
-  //       description: task.descriptions,
-  //     });
-  //   }
-  // }, [task, create, form]);
-
-  const showDrawer = () => {
-    setOpen(true);
-  };
-
-  const onClose = () => {
-    setOpen(false);
-    // reset form menjadi kosong
-    form.resetFields();
-  };
-
-  const onSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-
-      const taskData = {
-        title: values.name,
-        descriptions: values.description,
-        stage_id: id_stage!,
-        start_task: dayjs(values.dateTime[0]).format("YYYY-MM-DD HH:mm:ss"),
-        end_task: dayjs(values.dateTime[1]).format("YYYY-MM-DD HH:mm:ss"),
-      };
-
-      if (create) {
-        await createTask(taskData);
-      } else if (task) {
-        await updateTask(task.id, taskData);
-      }
-
-      onClose();
-    } catch (errorInfo) {
-      console.error("Failed to submit form:", errorInfo);
-    }
-  };
 
   return (
     <>
-      <Button
-        type={`primary`}
-        onClick={showDrawer}
-        shape={`round`}
-        style={{
-          width: `89px`,
-          height: `40px`,
-        }}>
-        Create
-      </Button>
+      <div>{children}</div>
       <Drawer
-        title={create ? `Create a new task` : "Edit Task"}
         width={720}
         onClose={onClose}
         open={open}
@@ -115,7 +59,6 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ create, task, id_stage }) => {
               </Form.Item>
             </Col>
           </Row>
-
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -154,6 +97,4 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ create, task, id_stage }) => {
       </Drawer>
     </>
   );
-};
-
-export default TaskDrawer;
+}

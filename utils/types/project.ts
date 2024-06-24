@@ -1,13 +1,13 @@
 export type ProjectType = {
     id: string;
     project_name: string;
-    description: string;
+    descriptions: string;
     slug: string;
+    code_invite: string;
   };
   
 export type ProjectCardProps = {
     project: ProjectType;
-    loading?: boolean;
 }
 
 

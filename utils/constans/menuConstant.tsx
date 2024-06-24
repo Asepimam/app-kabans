@@ -18,7 +18,7 @@ export const MENU_ITEMS: MenuItem[] = [
     key: "Home_sidebar",
     icon: <FaHome />,
     label: (
-      <Link href="/dasboard" target="_self" rel="noopener noreferrer">
+      <Link href="/dashboard" target="_self" rel="noopener noreferrer">
         Dashboard
       </Link>
     ),
@@ -27,7 +27,7 @@ export const MENU_ITEMS: MenuItem[] = [
     key: "Projects_sidebar",
     icon: <GoProjectRoadmap />,
     label: (
-      <Link href="/dasboard/projects" target="_self" rel="noopener noreferrer">
+      <Link href="/dashboard/projects" target="_self" rel="noopener noreferrer">
         Projects
       </Link>
     ),
@@ -41,7 +41,7 @@ export const MENU_ITEMS: MenuItem[] = [
         key: "Setting_profile",
         label: (
           <Link
-            href="/dasboard/setting/profile"
+            href="/dashboard/settings/profile"
             target="_self"
             rel="noopener noreferrer">
             Profile
