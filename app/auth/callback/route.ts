@@ -11,19 +11,14 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = createClient();
-    await supabase.auth.exchangeCodeForSession(code);
-  }
-  
-  // jika user berhasil login, maka lakukan insert data ke table profile
-  const supabase = createClient();
-  const { data:{user} } = await supabase.auth.getUser();
-  console.log(user);
-  const { data } =  await supabase.from('profiles').insert([
-    { user_id:user?.id }
-  ]).select();
-  console.log(data);
-  
-
-  // URL to redirect to after sign up process completes
-  return NextResponse.redirect(`${origin}/dasboard`);
+    const {data:{user}}=await supabase.auth.exchangeCodeForSession(code);
+   
+    const {data:profile} = await supabase.from('profiles').select("user_id").eq('user_id', user?.id).single();
+    if(!profile){
+      await supabase.from('profiles').insert({user_id:user?.id,avatar_url:user?.user_metadata.avatar_url});
+      return NextResponse.redirect(`${origin}/dashboard`);
+    }
+    return NextResponse.redirect(`${origin}/dashboard`);
+  } 
+  return NextResponse.redirect("/");
 }
