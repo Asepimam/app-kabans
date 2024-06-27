@@ -1,17 +1,11 @@
-import { Button, type MenuProps } from "antd";
+import { type MenuProps } from "antd";
 import Link from "next/link";
 
 import { FaHome } from "react-icons/fa";
 import { GoProjectRoadmap } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
-import { createClient } from "../supabase/client";
 
 type MenuItem = Required<MenuProps>["items"][number];
-const onLogout = async () => {
-  const supabase = createClient();
-  await supabase.auth.signOut();
-  return window.location.replace("/");
-};
 
 export const MENU_ITEMS: MenuItem[] = [
   {
@@ -51,9 +45,9 @@ export const MENU_ITEMS: MenuItem[] = [
       {
         key: "Setting_logout",
         label: (
-          <Button onClick={onLogout} type="primary">
+          <Link href="/api/logout" target="_self" rel="noopener noreferrer">
             Logout
-          </Button>
+          </Link>
         ),
       },
     ],
