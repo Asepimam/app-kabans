@@ -1,9 +1,15 @@
 import { setUpOIDC } from "@/utils/openid/client";
+import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
 export async function GET() {
+  const supabase= createClient();
   const cookieStore = cookies()
   const token = cookieStore.get('token')?.value;
+  
+  // jika dari supabase
+  await supabase.auth.signOut();
+
   if(token){
     await setUpOIDC().then((client) => {
       client.revoke(token);
