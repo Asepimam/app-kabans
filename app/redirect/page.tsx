@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+"use client";
+import React, { useEffect } from "react";
 
 type Props = {
   searchParams?: {
@@ -6,24 +7,42 @@ type Props = {
   };
 };
 
-export default async function AuthRedirectPage({ searchParams }: Props) {
-  const code = searchParams?.code;
+export default function Page(props: Props) {
+  const ref = React.useRef(false);
 
-  if (!code) {
-    redirect("/");
-  }
+  useEffect(() => {
+    if (!ref.current) {
+      ref.current = true;
+      const code = props.searchParams?.code;
+      const fetchAuth = async () => {
+        try {
+          const response = await fetch(
+            `${window.location.origin}/api/auth?code=${code}`,
+            {
+              method: "GET",
+            },
+          );
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth?code=${code}`,
-    {
-      method: "GET",
-    },
+          if (response.ok) {
+            window.location.href = "/dashboard";
+          } else {
+            console.log("Authorization failed");
+            window.location.href = "/";
+          }
+        } catch (error) {
+          console.error("Fetch error:", error);
+          window.location.href = "/";
+        }
+      };
+      fetchAuth();
+    }
+  }, [props.searchParams]);
+
+  return (
+    <div className="pt-12">
+      <div className="animate-pulse flex space-x-4">
+        <h1>Authorizing...</h1>
+      </div>
+    </div>
   );
-  const data = await response.json();
-
-  if (data.success) {
-    redirect("/dashboard");
-  } else {
-    redirect("/");
-  }
 }
