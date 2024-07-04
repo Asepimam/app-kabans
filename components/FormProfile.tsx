@@ -2,16 +2,19 @@
 import { createClient } from "@/utils/supabase/client";
 import { Button, DatePicker, Form, Input, message } from "antd";
 import dayjs from "dayjs";
+import { redirect } from "next/navigation";
 export type FormProfileProps = {
   first_name: string;
   last_name: string;
   full_name: string;
   birth_date: string;
+  subUser: string;
 };
 
 export default function FormProfile(props: FormProfileProps) {
   console.log(props);
   const supabase = createClient();
+
   const [form] = Form.useForm();
   form.setFieldsValue({
     firstName: props.first_name,
@@ -19,26 +22,39 @@ export default function FormProfile(props: FormProfileProps) {
     fullName: props.full_name,
     birthDate: props.birth_date ? dayjs(props.birth_date) : null,
   });
+
   const handleFinish = async (values: any) => {
     const { firstName, lastName, fullName, birthDate } = values;
+    let profileMatch = {};
 
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
-    if (session) {
+    if (props.subUser) {
+      profileMatch = { uniq_id: props.subUser };
+    } else {
+      if (session) {
+        profileMatch = { user_id: session.user.id };
+      } else {
+        return redirect("/");
+      }
+    }
+
+    console.log(profileMatch);
+    if (profileMatch) {
       const updates = {
         first_name: firstName,
         last_name: lastName,
         full_name: fullName,
         birth_date: dayjs(birthDate).format("YYYY-MM-DD"),
       };
-
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
-        .update(updates)
-        .eq("user_id", session.user.id);
-
+        .update(updates!)
+        .match(profileMatch)
+        .select();
+      console.log(data);
       if (error) {
         console.error("Error updating profile:", error);
         message.error("Error updating profile.");
