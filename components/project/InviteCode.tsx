@@ -1,24 +1,32 @@
 "use client";
 import { useProject } from "@/utils/contexts/projectContext";
-import { Button, Input, Space } from "antd";
+import { Button, Input, message, Space } from "antd";
 import { useState } from "react";
 
 export default function InviteCode() {
   const { handleInviteCode } = useProject();
   const [inviteCode, setInviteCode] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false); // State baru untuk loading
 
   const handleSubmit = async () => {
     if (
       !inviteCode ||
-      inviteCode.length !== 5 ||
+      inviteCode.length !== 6 ||
       !/\d/.test(inviteCode) ||
       /[^\x00-\x7F]/.test(inviteCode)
     ) {
-      return;
+      return message.error("Invalid invite code");
     }
 
-    await handleInviteCode(inviteCode);
-    setInviteCode("");
+    setLoading(true);
+    try {
+      await handleInviteCode(inviteCode);
+      setInviteCode("");
+    } catch (error) {
+      message.error("Failed to process invite code");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,8 +36,14 @@ export default function InviteCode() {
           placeholder="Invite Code"
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value)}
+          disabled={loading} // Disable input saat loading
         />
-        <Button type="primary" onClick={handleSubmit}>
+        <Button
+          type="primary"
+          onClick={handleSubmit}
+          loading={loading}
+          disabled={loading}>
+          {" "}
           Submit
         </Button>
       </Space.Compact>
