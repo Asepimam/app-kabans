@@ -19,6 +19,16 @@ interface Project {
   code_invite: string;
 }
 
+interface TeamProject {
+  id: string;
+  code_invite: string;
+  project_id: string;
+}
+
+interface TeamProjectMember {
+  team_project: TeamProject;
+}
+
 interface ProjectContextType {
   projects: Project[];
   fetchProjects: (query?: string) => void;
@@ -31,65 +41,65 @@ interface ProjectContextType {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
-export const ProjectProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const ProjectProvider: React.FC<{
+  children: ReactNode;
+  sub: string;
+}> = ({ children, sub }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProjects = async (query?: string) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      let profileCondition = {};
+      if (user) {
+        profileCondition = { user_id: user.id };
+      } else {
+        profileCondition = { uniq_id: sub };
+      }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select()
-      .eq("user_id", user?.id)
-      .single();
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select()
+        .match(profileCondition)
+        .single();
+      if (profileError) throw profileError;
 
-    const { data: teamMembers } = await supabase
-      .from("team_project_members")
-      .select()
-      .eq("user_id", profile?.id);
+      // gunakan interface TeamProject untuk mendapatkan data team_project
+      const { data: teamProjects, error: teamProjectsError } = await supabase
+        .from("team_project_members")
+        .select<"team_project(id, code_invite, project_id)", TeamProjectMember>(
+          "team_project(id, code_invite, project_id)",
+        )
+        .eq("user_id", profile.id);
+      if (teamProjectsError) throw teamProjectsError;
 
-    const teamProjectPromise =
-      teamMembers?.map(async (teamMember: any) => {
-        const { data: teamProject } = await supabase
-          .from("team_project")
-          .select()
-          .eq("id", teamMember.team_project_id);
-        return teamProject || [];
-      }) ?? [];
-    const teamProjectData = await Promise.all(teamProjectPromise);
-    const teams = teamProjectData.flat();
-
-    const projectPromise =
-      teams?.map(async (team: any) => {
-        const { data: project } = await supabase
-          .from("projects")
-          .select()
-          .eq("id", team.project_id);
-        return project || [];
-      }) ?? [];
-
-    const projectData = await Promise.all(projectPromise);
-
-    const projects = projectData.flat();
-
-    const data = projects.map((project: any) => {
-      const codeInvite = teams.find(
-        (team: any) => team.project_id === project.id,
+      const projectIds = teamProjects?.map(
+        (teamProject) => teamProject.team_project.project_id,
       );
-      return {
-        id: project.id,
-        project_name: project.project_name,
-        descriptions: project.descriptions,
-        slug: project.slug,
-        code_invite: codeInvite?.code_invite,
-      };
-    });
-    setProjects(data);
+      const { data: projects, error: projectsError } = await supabase
+        .from("projects")
+        .select("*")
+        .in("id", projectIds);
+      if (projectsError) throw projectsError;
+
+      const result = projects.map((project) => {
+        const teamProject = teamProjects?.find(
+          (teamProject) => teamProject.team_project.project_id === project.id,
+        );
+        return {
+          ...project,
+          code_invite: teamProject?.team_project.code_invite,
+        };
+      });
+
+      setProjects(result);
+    } catch (error) {
+      console.error("Error fetching projects: ", error);
+      // Handle error appropriately, e.g., set an error state or show a message
+    }
   };
 
   const handleInviteCode = async (inviteCode: string) => {
@@ -99,7 +109,6 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({
         .select()
         .eq("code_invite", inviteCode)
         .single();
-
       if (error) {
         throw error;
       }
@@ -113,15 +122,16 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) {
-        message.error("User not authenticated");
-        return;
+      let profileCondition: any = {};
+      if (user) {
+        profileCondition = { user_id: user.id };
+      } else {
+        profileCondition = { uniq_id: sub };
       }
-
       const { data: profile } = await supabase
         .from("profiles")
         .select()
-        .eq("user_id", user?.id)
+        .match(profileCondition)
         .single();
 
       // jika user sudah join team dalam project yang sama maka tidak bisa join lagi
@@ -162,57 +172,51 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      let profileCondition: any = {};
+      if (user) {
+        profileCondition = { user_id: user.id };
+      } else {
+        profileCondition = { uniq_id: sub };
+      }
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select()
-        .eq("user_id", user?.id)
+        .match(profileCondition)
         .single();
-
-      if (profileError) {
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
-        .insert([
-          {
-            project_name: title,
-            descriptions: descriptions,
-          },
-        ])
+        .insert([{ project_name: title, descriptions }])
+        .select()
+        .single();
+      if (projectError) throw projectError;
+
+      const { data: team } = await supabase
+        .from("team_project")
+        .insert([{ code_invite: codeInvite(), project_id: projectData.id }])
         .select()
         .single();
 
-      if (projectError) {
-        throw projectError;
-      }
-      const { data: team } = await supabase
-        .from("team_project")
-        .insert([
-          {
-            code_invite: codeInvite(),
-            project_id: projectData.id,
-          },
-        ])
-        .select()
-        .single();
       await supabase.from("team_project_members").insert([
         {
           team_project_id: team.id,
-          user_id: profile?.id,
+          user_id: profile.id,
           role: "owner",
         },
       ]);
-      await supabase.from("stages").insert([
-        { project_id: projectData.id, stage_name: "To Do" },
-        { project_id: projectData.id, stage_name: "In Progress" },
-        { project_id: projectData.id, stage_name: "Review" },
-        { project_id: projectData.id, stage_name: "Done" },
-      ]);
+
+      const stages = ["To Do", "In Progress", "Review", "Done"].map(
+        (stage_name) => ({
+          project_id: projectData.id,
+          stage_name,
+        }),
+      );
+      await supabase.from("stages").insert(stages);
 
       message.success("Project created successfully");
-      fetchProjects(); // Fetch projects again to update the list
+      fetchProjects();
     } catch (error) {
       console.error("Error creating project: ", error);
       message.error("Error creating project");

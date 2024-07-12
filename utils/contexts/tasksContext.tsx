@@ -1,16 +1,16 @@
-// context/TasksContext.tsx
+"use client";
 import { createClient } from "@/utils/supabase/client";
 import { Task } from "@/utils/types/task";
 import React, { createContext, useCallback, useContext, useState } from "react";
 
 const TasksContext = createContext<{
   tasks: Task[];
-
   fetchTasks: () => void;
   updateTaskStage: (id: string, stageId: string) => void;
   deleteTask: (id: string) => void;
   updateTask: (id: string, updatedTask: Partial<Task>) => void;
   createTask: (task: any) => void;
+  userId: string;
 }>({
   tasks: [],
   fetchTasks: () => {},
@@ -18,11 +18,16 @@ const TasksContext = createContext<{
   updateTask: () => {},
   updateTaskStage: () => {},
   deleteTask: () => {},
+  userId: "",
 });
 
-export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
+interface TaskProviderProps {
+  children: React.ReactNode;
+  idUser: string;
+}
+
+export const TasksProvider = ({ children, idUser }: TaskProviderProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [profiles, setProfiles] = useState<any[]>([]);
   const supabase = createClient();
 
   const fetchTasks = useCallback(async () => {
@@ -103,6 +108,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         deleteTask,
         createTask,
         updateTask,
+        userId: idUser,
       }}>
       {children}
     </TasksContext.Provider>

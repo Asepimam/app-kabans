@@ -6,7 +6,7 @@ import { useState } from "react";
 export default function InviteCode() {
   const { handleInviteCode } = useProject();
   const [inviteCode, setInviteCode] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false); // State baru untuk loading
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     if (

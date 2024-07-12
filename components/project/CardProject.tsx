@@ -9,6 +9,7 @@ const { Meta } = Card;
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const { project_name, descriptions, slug, code_invite } = project;
+
   const loading = false;
 
   const handleCopy = async (text: string) => {

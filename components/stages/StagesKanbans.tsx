@@ -10,7 +10,6 @@ import Stage from "./Stage";
 const StagesKanbans = ({ slug }: { slug: string }) => {
   const supabase = createClient();
   const [stages, setStages] = useState<stage[] | null>([]);
-  // const [tasks, setTasks] = useState<Task[] | null>([]);
   const { tasks, fetchTasks, updateTaskStage } = useTasks();
 
   useEffect(() => {

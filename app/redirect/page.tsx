@@ -39,9 +39,9 @@ export default function Page(props: Props) {
   }, [props.searchParams]);
 
   return (
-    <div className="pt-12">
-      <div className="animate-pulse flex space-x-4">
-        <h1>Authorizing...</h1>
+    <div className="pt-12 flex justify-center">
+      <div className="flex space-x-4">
+        <h1 className="text-xl font-semibold animate-pulse">Authorizing...</h1>
       </div>
     </div>
   );

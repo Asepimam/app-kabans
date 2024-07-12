@@ -3,14 +3,14 @@ import { formatTimeDifference } from "@/utils/helpers/expired";
 import { Task } from "@/utils/types/task";
 import { useDraggable } from "@dnd-kit/core";
 import { useCallback, useMemo, useState } from "react";
-import TaskDetail from "./TaskDetail";
+import TaskDetail from "./TaskDetailDrawer";
 
 interface CardTaskProps {
   task: Task;
 }
 
 const CardTask = ({ task }: CardTaskProps) => {
-  const { id, title, start_task, end_task } = task;
+  const { id, title, start_task, end_task, image } = task;
   const [open, setOpen] = useState(false);
 
   const expireTask = formatTimeDifference(end_task, start_task);
@@ -57,14 +57,9 @@ const CardTask = ({ task }: CardTaskProps) => {
     setOpen(false);
   };
 
-  const onSubmit = (values: any) => {
-    console.log(values);
-    setOpen(false);
-  };
-
   return (
     <>
-      <TaskDetail open={open} onClose={onClose} onSubmit={onSubmit}>
+      <TaskDetail open={open} onClose={onClose} taskDetail={task}>
         <div
           style={style}
           className="bg-transparent w-full h-full cursor-pointer"
@@ -76,7 +71,14 @@ const CardTask = ({ task }: CardTaskProps) => {
           <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 min-h-[96px] mt-3">
             <div className="flex flex-col content-center">
               <p className="text-lg text-gray-800 font-semibold">{title}</p>
-              <div className="flex gap-2">
+              {image && (
+                <img
+                  src={image}
+                  alt={title}
+                  className="w-full h-56 object-cover rounded-lg mt-2"
+                />
+              )}
+              <div className="flex gap-2 mt-3">
                 <p className="text-sm text-gray-500">Expired:</p>
                 <p className="text-sm text-gray-800">{expireTask}</p>
               </div>
