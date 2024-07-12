@@ -41,7 +41,11 @@ export const TasksProvider = ({ children, idUser }: TaskProviderProps) => {
 
   const updateTaskStage = useCallback(
     async (id: string, stageId: string) => {
-      const { data, error } = await supabase
+      await supabase
+        .from("messages")
+        .update({ stage_id: stageId })
+        .eq("task_id", id);
+      const { error } = await supabase
         .from("tasks")
         .update({ stage_id: stageId })
         .eq("id", id);
