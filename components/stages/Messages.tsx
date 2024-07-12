@@ -113,7 +113,7 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
             <img
               className="w-8 h-8 rounded-full"
               src={
-                msg.profiles.avatar_url
+                msg.profiles?.avatar_url
                   ? msg.profiles?.avatar_url
                   : "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png"
               }
@@ -145,7 +145,6 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
             </div>
           </div>
         ))}
-        <div ref={messagesEndRef} />
       </div>
     </>
   );
