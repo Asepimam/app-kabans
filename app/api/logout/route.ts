@@ -15,6 +15,7 @@ export async function GET() {
       client.revoke(token);
       cookies().delete('cv');
       cookies().delete('token');
+      cookies().delete('refresh_token');
     })
   }
 

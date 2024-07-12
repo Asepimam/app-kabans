@@ -14,6 +14,7 @@ export async function GET(request: Request) {
       const client = await setUpOIDC();
       const params = client.callbackParams(url);
       
+      
       // Get code_verifier and nonce from cookies
       const code_verifier = cookies().get('cv')?.value;
       const nonce = cookies().get('nonce')?.value;
@@ -28,7 +29,13 @@ export async function GET(request: Request) {
 
         // Extract access token from userJWT
         const token = userJWT.access_token as string;
+        const refresh_token = userJWT.refresh_token as string;
+        const expires_at = userJWT.expires_at as number;
 
+        await cookies().set('refresh_token', refresh_token);
+        await cookies().set('expires_at', expires_at.toString());
+        
+                
         // Get user info using the obtained access token
         const userinfo = await client.userinfo(token);
 
@@ -50,12 +57,12 @@ export async function GET(request: Request) {
           });
         }
        
-        // Return success response with token in a cookie
+        // Return success response with token in a cookie dan refresh token in a header
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: {
             "Content-Type": "application/json",
-            "Set-Cookie": `token=${token}; Path=/; HttpOnly; SameSite=Strict`,
+            "Set-Cookie": `token=${token}; Path=/; HttpOnly; SameSite=Strict`, 
           },
         });
       }

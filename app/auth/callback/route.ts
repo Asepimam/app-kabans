@@ -10,15 +10,43 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin;
 
   if (code) {
-    const supabase = createClient();
-    const {data:{user}}=await supabase.auth.exchangeCodeForSession(code);
-   
-    const {data:profile} = await supabase.from('profiles').select("user_id").eq('user_id', user?.id).single();
-    if(!profile){
-      await supabase.from('profiles').insert({user_id:user?.id,avatar_url:user?.user_metadata.avatar_url});
+    try {
+      const supabase = createClient();
+      await supabase.auth.exchangeCodeForSession(code);
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error('Error fetching user:', userError?.message);
+        return NextResponse.redirect(origin);
+      }
+      
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select()
+        .eq('user_id', user.id)
+        .single();
+
+      
+      // jika profile itu null insert profile
+      if (!profile) {
+        const { error: insertError } = await supabase.from('profiles').insert({
+          user_id: user.id,
+          full_name: user.user_metadata.full_name,
+          avatar_url: user.user_metadata.avatar_url,
+        }).select();
+
+        if (insertError) {
+          console.error('Error inserting profile:', insertError.message);
+          return NextResponse.redirect(origin);
+        }
+        return NextResponse.redirect(`${origin}/dashboard`);
+      }
       return NextResponse.redirect(`${origin}/dashboard`);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      return NextResponse.redirect(origin);
     }
-    return NextResponse.redirect(`${origin}/dashboard`);
-  } 
-  return NextResponse.redirect("/");
+  }
+
+  return NextResponse.redirect(origin);
 }
