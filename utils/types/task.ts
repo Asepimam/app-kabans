@@ -8,4 +8,6 @@ export type Task= {
     created_at: string;
     descriptions: string;
     type: string;
+    image: string;
+    url: string;
 };
