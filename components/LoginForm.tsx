@@ -19,7 +19,7 @@ export const LoginButtons = () => {
         });
     }
     ref.current = true;
-  }, []);
+  }, [authURL]);
 
   const loginGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
