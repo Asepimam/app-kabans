@@ -49,14 +49,11 @@ export default function SendMessage({ task, drawerOpen }: SendMessageProps) {
   }, [drawerOpen]);
 
   const handleEmojiSelect = (e: any) => {
-    console.log(e);
-
-    // Pisahkan berdasarkan "-" untuk mendukung emoji dengan multiple code points
     const sym = e.unified.split("-");
-    console.log(sym);
+
     let codesArray: any = [];
     sym.forEach((el: any) => codesArray.push("0x" + el));
-    // Gunakan String.fromCodePoint dengan spread operator untuk mendukung multiple code points
+
     let emoji = String.fromCodePoint(
       ...codesArray.map((code: string) => parseInt(code)),
     );
