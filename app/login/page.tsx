@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Login(req: Request) {
+export default async function Login() {
   const supabase = createClient();
   const token = cookies().get("token")?.value;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
