@@ -24,67 +24,71 @@ const FormDetailTask = ({ taskDetail }: { taskDetail: Task }) => {
     url: taskDetail.url,
   });
   return (
-    <Form layout="vertical" form={form} hideRequiredMark>
-      <Row gutter={16}>
-        <Col span={12}>
-          <Form.Item name="name" label="Task">
-            <Input placeholder="Please enter task name" disabled />
-          </Form.Item>
-        </Col>
-        {taskDetail.url && (
+    <>
+      <Form layout="vertical" form={form} hideRequiredMark>
+        <Row gutter={16}>
           <Col span={12}>
-            <Form.Item name="url" label="Url">
-              <Input
-                style={{ width: "100%" }}
-                addonBefore="http://"
-                placeholder="Please enter url"
-                disabled
-              />
-              <Button icon={<CopyOutlined />} onClick={copyToClipboard} />
+            <Form.Item name="name" label="Task">
+              <Input placeholder="Please enter task name" disabled />
             </Form.Item>
           </Col>
-        )}
-      </Row>
-      <Row gutter={16}>
-        <Col span={12}>
-          <Form.Item
-            name="dateTime"
-            label="Expired Task"
-            rules={[{ required: true, message: "Please choose the dateTime" }]}>
-            <DatePicker.RangePicker
-              style={{ width: "100%" }}
-              showTime
-              getPopupContainer={(trigger) => trigger.parentElement!}
-              disabled
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={24}>
-          <Form.Item name="description" label="Description of Task">
-            <Input.TextArea
-              rows={4}
-              placeholder="Please enter task description"
-              disabled
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      {taskDetail.image && (
+          {taskDetail.url && (
+            <Col span={12}>
+              <Form.Item name="url" label="Url">
+                <Input
+                  style={{ width: "100%" }}
+                  addonBefore="http://"
+                  placeholder="Please enter url"
+                  disabled
+                />
+                <Button icon={<CopyOutlined />} onClick={copyToClipboard} />
+              </Form.Item>
+            </Col>
+          )}
+        </Row>
         <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item name="image" label="Detail Image">
-              <img
-                src={taskDetail.image}
-                alt="uploaded"
-                style={{ width: "100%", marginTop: 16 }}
+          <Col span={12}>
+            <Form.Item
+              name="dateTime"
+              label="Expired Task"
+              rules={[
+                { required: true, message: "Please choose the dateTime" },
+              ]}>
+              <DatePicker.RangePicker
+                style={{ width: "100%" }}
+                showTime
+                getPopupContainer={(trigger) => trigger.parentElement!}
+                disabled
               />
             </Form.Item>
           </Col>
         </Row>
-      )}
-    </Form>
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item name="description" label="Description of Task">
+              <Input.TextArea
+                rows={4}
+                placeholder="Please enter task description"
+                disabled
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        {taskDetail.image && (
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item name="image" label="Detail Image">
+                <img
+                  src={taskDetail.image}
+                  alt="uploaded"
+                  style={{ width: "100%", marginTop: 16 }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
+      </Form>
+    </>
   );
 };
 

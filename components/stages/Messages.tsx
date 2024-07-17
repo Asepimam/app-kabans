@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Task } from "@/utils/types/task";
 import { Card } from "antd";
 import { useEffect, useRef, useState } from "react";
+import FormatMessageLink from "../FormatMessageLink";
 
 interface Message {
   id: number;
@@ -53,7 +54,7 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
   }, [messages]);
 
   useEffect(() => {
-    if (!isUserScrolling && drawerOpen) {
+    if (!isUserScrolling && drawerOpen === true) {
       scrollToBottom();
     }
   }, [messages]);
@@ -68,6 +69,7 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
       console.error("Failed to fetch messages:", error);
     } else {
       setMessages(messages);
+      scrollToBottom();
     }
   };
 
@@ -139,9 +141,7 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
                   })}
                 </span>
               </div>
-              <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
-                {msg.message}
-              </p>
+              <FormatMessageLink message={msg.message} />
             </div>
           </div>
         ))}
