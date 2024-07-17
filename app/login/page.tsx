@@ -3,9 +3,14 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Login() {
+export default async function Login(req: Request) {
   const supabase = createClient();
   const token = cookies().get("token")?.value;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const router = await fetch(`${baseUrl}/api/auth/authURL`, {
+    method: "POST",
+  });
+  const authURL = await router.json();
 
   const {
     data: { session },
@@ -18,7 +23,7 @@ export default async function Login() {
           <h1 className="text-2xl font-bold text-center text-slate-700">
             Login
           </h1>
-          <LoginButtons />
+          <LoginButtons IbmUrl={authURL} />
         </div>
       </div>
     );
