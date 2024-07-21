@@ -20,11 +20,14 @@ interface Profile {
   full_name: string;
   avatar_url: string;
 }
+
 type MessagesProps = {
   task: Task;
   drawerOpen: boolean;
 };
+
 const { Meta } = Card;
+
 export default function Messages({ task, drawerOpen }: MessagesProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const { userId } = useTasks();
@@ -36,14 +39,27 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
 
   useEffect(() => {
     fetchMessages();
+  }, [task.id, supabase]);
 
+  useEffect(() => {
     const channel = supabase
       .channel("custom-insert-channel")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
-        (payload: any) => {
-          setMessages((prevMessages: any) => [...prevMessages, payload.new]);
+        async (payload: any) => {
+          const profile_id = payload.new.profile_id;
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name,avatar_url")
+            .eq("id", profile_id)
+            .single();
+          const newMessage = {
+            ...payload.new,
+            profiles: profile,
+          };
+
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
         },
       )
       .subscribe();
@@ -51,13 +67,7 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [messages]);
-
-  useEffect(() => {
-    if (!isUserScrolling && drawerOpen === true) {
-      scrollToBottom();
-    }
-  }, [messages]);
+  }, [supabase]);
 
   const fetchMessages = async () => {
     const { data: messages, error } = await supabase
@@ -65,39 +75,43 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
       .select(`*,profiles(id,full_name,avatar_url)`)
       .eq("task_id", task.id)
       .order("created_at", { ascending: true });
+
     if (error) {
       console.error("Failed to fetch messages:", error);
     } else {
+      console.log("messages", messages);
       setMessages(messages);
+    }
+  };
+
+  // Scroll to bottom when messages are updated
+  useEffect(() => {
+    if (!isUserScrolling) {
       scrollToBottom();
     }
-  };
+  }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  };
-  const handleScroll = () => {
-    if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } =
-        messagesContainerRef.current;
-      if (scrollHeight - scrollTop === clientHeight) {
-        setIsUserScrolling(false);
-      } else {
-        setIsUserScrolling(true);
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const element = event.currentTarget;
+    if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+      setIsUserScrolling(false);
+    } else {
+      setIsUserScrolling(true);
+    }
+  };
   return (
     <>
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
         style={{
+          height: "300px",
           marginBottom: 16,
-          maxHeight: "200px",
+          maxHeight: "500px",
           overflowY: "auto",
           border: "1px solid #f0f0f0",
           borderRadius: "10px",
@@ -145,6 +159,7 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
     </>
   );
