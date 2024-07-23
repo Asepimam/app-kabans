@@ -34,7 +34,7 @@ export default async function EditProfile() {
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("full_name,first_name, last_name, birth_date")
+      .select("*")
       .match(profileMatch)
       .single();
     if (error) {

@@ -4,14 +4,13 @@ import { ProjectCardProps } from "@/utils/types/project";
 import { CopyOutlined } from "@ant-design/icons";
 import { Button, Card, message, Tooltip } from "antd";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const { Meta } = Card;
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const { project_name, descriptions, slug, code_invite } = project;
-
-  const loading = false;
-
+  const [loading, setLoading] = useState(false);
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -20,7 +19,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       message.error("Failed to copy invite code");
     }
   };
-
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 4000);
+  }, []);
   return (
     <Link href={`/dashboard/projects/${slug}`}>
       <Card
