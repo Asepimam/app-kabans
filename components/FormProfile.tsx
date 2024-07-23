@@ -1,19 +1,22 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import { Button, DatePicker, Form, Input, message } from "antd";
+import { Button, Col, DatePicker, Form, Input, message, Row } from "antd";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
+import { useState } from "react";
+import UploadAvatarProfile from "./UploadAvatarProfile";
 export type FormProfileProps = {
   first_name: string;
   last_name: string;
   full_name: string;
   birth_date: string;
   subUser: string;
+  avatar_url: string;
 };
 
 export default function FormProfile(props: FormProfileProps) {
-  console.log(props);
   const supabase = createClient();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const [form] = Form.useForm();
   form.setFieldsValue({
@@ -41,13 +44,13 @@ export default function FormProfile(props: FormProfileProps) {
       }
     }
 
-    console.log(profileMatch);
     if (profileMatch) {
       const updates = {
         first_name: firstName,
         last_name: lastName,
         full_name: fullName,
         birth_date: dayjs(birthDate).format("YYYY-MM-DD"),
+        avatar_url: imageUrl,
       };
       const { data, error } = await supabase
         .from("profiles")
@@ -63,33 +66,81 @@ export default function FormProfile(props: FormProfileProps) {
       }
     }
   };
+
+  const handleFileUpload = async (event: any) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+    const fileName = file.name;
+    const { data, error } = await supabase.storage
+      .from("uploads")
+      .upload(`public/profile_avatar/${fileName}`, file);
+    if (error) {
+      console.error("Error uploading file: ", error);
+      message.error("Error uploading file.");
+      return;
+    }
+    const url = await supabase.storage
+      .from("uploads")
+      .getPublicUrl(`public/profile_avatar/${fileName}`);
+    setImageUrl(url.data.publicUrl);
+  };
+
+  const handleRemoveUpload = async () => {
+    const pathArray = imageUrl!.split("/");
+
+    const relevantPath = pathArray?.[10];
+
+    const { error } = await supabase.storage
+      .from("uploads")
+      .remove([`public/profile_avatar/${relevantPath}`]);
+    if (error) {
+      console.error("Error removing file: ", error);
+      message.error("Error removing file.");
+      return;
+    }
+    setImageUrl(null);
+  };
+
   return (
-    <div className="flex flex-col w-[600px] rounded-md bg-gray-800 p-16">
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleFinish}
-        className="flex flex-col space-y-4">
-        <div className="flex">
-          <div className="flex-1">
-            <Form.Item
-              name="firstName"
-              label={
-                <span className="text-lg font-semibold text-gray-200">
-                  First Name
-                </span>
-              }>
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="lastName"
-              label={
-                <span className="text-lg font-semibold text-gray-200">
-                  Last Name
-                </span>
-              }>
-              <Input />
-            </Form.Item>
+    <div className="flex flex-col w-full items-center">
+      <div className="flex w-full max-w-[800px] rounded-md bg-gray-800 p-8">
+        <div className="flex flex-col items-center mr-8">
+          <UploadAvatarProfile
+            onChange={handleFileUpload}
+            imageUrl={imageUrl!}
+            initialImageUrl={props.avatar_url}
+            onRemove={handleRemoveUpload}
+          />
+        </div>
+        <div className="flex flex-col flex-1">
+          <Form form={form} layout="vertical" onFinish={handleFinish}>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="firstName"
+                  label={
+                    <span className="text-lg font-semibold text-gray-200">
+                      First Name
+                    </span>
+                  }>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="lastName"
+                  label={
+                    <span className="text-lg font-semibold text-gray-200">
+                      Last Name
+                    </span>
+                  }>
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
             <Form.Item
               name="fullName"
               label={
@@ -108,15 +159,14 @@ export default function FormProfile(props: FormProfileProps) {
               }>
               <DatePicker />
             </Form.Item>
-          </div>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Edit Profile
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Edit Profile
-          </Button>
-        </Form.Item>
-      </Form>
+      </div>
     </div>
   );
 }
