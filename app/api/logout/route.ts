@@ -1,11 +1,15 @@
+
 import { setUpOIDC } from "@/utils/openid/client";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request:Request) {
   const supabase= createClient();
   const cookieStore = cookies()
   const token = cookieStore.get('token')?.value;
+  const url = new URL(request.url);
+  const origin = url.origin;
   
   // jika dari supabase
   await supabase.auth.signOut();
@@ -20,11 +24,5 @@ export async function GET() {
   }
 
   // prettier-ignore
-  return new Response(JSON.stringify({ success: true }), {
-      status: 302, // HTTP status code for temporary redirection
-      headers: {
-        "Location": "/",  // The URL to redirect to
-        "Content-Type": "application/json",
-      },
-    });
+  return  NextResponse.redirect(origin);
 }

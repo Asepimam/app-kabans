@@ -1,6 +1,7 @@
 import StagesKanbans from "@/components/stages/StagesKanbans";
 import { TasksProvider } from "@/utils/contexts/tasksContext";
 import { setUpOIDC } from "@/utils/openid/client";
+
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 

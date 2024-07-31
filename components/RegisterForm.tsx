@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Button } from "antd";
 import { useEffect, useRef, useState } from "react";
 
-export const LoginButtons = () => {
+export const RegisterButton = () => {
   const supabase = createClient();
   const [authURL, setAuthURL] = useState<string>();
   const ref = useRef(false);
