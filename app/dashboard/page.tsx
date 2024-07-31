@@ -13,30 +13,29 @@ interface Profile {
 }
 
 export default async function Dashboard() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   try {
     const supabase = createClient();
     const client = await setUpOIDC();
     const token = await cookies().get("token")?.value;
 
     let profile: Profile = {} as Profile;
+    let profileMatch = {};
 
     const {
-      data: { user },
+      data: { session },
       error: userError,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getSession();
 
     if (userError) {
       console.error("Error fetching user:", userError);
-      return redirect("/");
     }
-
-    let profileMatch = {};
 
     if (token) {
       const { sub } = await client.userinfo(token!);
       profileMatch = { uniq_id: sub };
-    } else if (user) {
-      profileMatch = { user_id: user.id };
+    } else if (session) {
+      profileMatch = { user_id: session.user };
     } else {
       return redirect("/");
     }
@@ -59,6 +58,10 @@ export default async function Dashboard() {
         <div className="flex items-center bg-gray-800 -ml-5 p-3 justify-end mb-3">
           <div className="flex items-center">
             <Avatar
+              style={{
+                height: "40px",
+                width: "40px",
+              }}
               src={
                 profile?.avatar_url
                   ? profile?.avatar_url
@@ -81,6 +84,7 @@ export default async function Dashboard() {
     );
   } catch (error) {
     console.error("Error in Dashboard function:", error);
-    return redirect("/");
+    await fetch(`${baseUrl}/api/logout`, { method: "POST" });
+    // return redirect("/");
   }
 }
