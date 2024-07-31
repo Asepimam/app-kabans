@@ -13,8 +13,8 @@ export async function GET(request: Request) {
         return NextResponse.redirect('/login');
     }
 
-    const {sub,name,picture} = await client.userinfo(token);
-    console.log(sub,name,picture);
+    const {sub,name} = await client.userinfo(token);
+    
 
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
