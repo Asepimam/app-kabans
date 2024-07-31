@@ -3,6 +3,7 @@ import ModalCreateProject from "@/components/project/ModalCreateProject";
 import ProjectList from "@/components/project/ProjectList";
 import { ProjectProvider } from "@/utils/contexts/projectContext";
 import { setUpOIDC } from "@/utils/openid/client";
+
 import { cookies } from "next/headers";
 
 export default async function Page() {
