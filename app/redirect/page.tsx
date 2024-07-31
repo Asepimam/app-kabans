@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect } from "react";
 
 type Props = {
@@ -7,27 +8,36 @@ type Props = {
   };
 };
 
-export default function Page(props: Props) {
+const RedirectPage: React.FC<Props> = ({ searchParams }) => {
   const ref = React.useRef(false);
 
   useEffect(() => {
     if (!ref.current) {
       ref.current = true;
-      const code = props.searchParams?.code;
+      const code = searchParams?.code;
       const fetchAuth = async () => {
         try {
-          const response = await fetch(
-            `${window.location.origin}/api/auth?code=${code}`,
-            {
-              method: "GET",
-            },
-          );
+          const response = await fetch(`/api/auth?code=${code}`, {
+            method: "GET",
+          });
 
-          if (response.ok) {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log(data);
+
+          if (data.success) {
+            const verifyResponse = await fetch("/api/verifyUsers", {
+              method: "GET",
+            });
+
+            const verifyResponseData = await verifyResponse.json();
+            if (!verifyResponseData.success) {
+              throw new Error(`HTTP error! status: ${verifyResponse.status}`);
+            }
             window.location.href = "/dashboard";
-          } else {
-            console.log("Authorization failed");
-            window.location.href = "/";
           }
         } catch (error) {
           console.error("Fetch error:", error);
@@ -36,7 +46,7 @@ export default function Page(props: Props) {
       };
       fetchAuth();
     }
-  }, [props.searchParams]);
+  }, [searchParams]);
 
   return (
     <div className="pt-12 flex justify-center">
@@ -45,4 +55,6 @@ export default function Page(props: Props) {
       </div>
     </div>
   );
-}
+};
+
+export default RedirectPage;
