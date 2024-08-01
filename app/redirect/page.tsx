@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 
 type Props = {
@@ -10,6 +11,13 @@ type Props = {
 
 const RedirectPage: React.FC<Props> = ({ searchParams }) => {
   const ref = React.useRef(false);
+  const router = useRouter();
+  const { code } = router.query;
+  useEffect(() => {
+    console.log("Current URL:", window.location.href);
+    console.log("searchParams:", searchParams);
+    console.log("router.query:", router.query);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!ref.current) {
