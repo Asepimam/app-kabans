@@ -13,13 +13,14 @@ export default ({ searchParams }: Props) => {
   useEffect(() => {
     console.log("RedirectPage", window.location.href);
     console.log("RedirectPage", searchParams);
-    console.log("code", searchParams?.code);
+    console.log("code", window.location.href.split("code=")[1]);
   }, [searchParams]);
 
   useEffect(() => {
     if (!ref.current) {
       ref.current = true;
-      const code = searchParams?.code;
+      const url = window.location.href;
+      const code = url.split("code=")[1];
       const fetchAuth = async () => {
         try {
           const response = await fetch(`/api/auth?code=${code}`, {
