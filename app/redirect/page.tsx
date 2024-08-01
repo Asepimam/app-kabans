@@ -1,28 +1,20 @@
 "use client";
 
-import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 
-type Props = {
-  searchParams?: {
-    code?: string;
-  };
-};
-
-const RedirectPage: React.FC<Props> = ({ searchParams }) => {
+export default function Page({ params }: { params: { code: string } }) {
   const ref = React.useRef(false);
-  const router = useRouter();
-  const { code } = router.query;
+
   useEffect(() => {
     console.log("Current URL:", window.location.href);
-    console.log("searchParams:", searchParams);
-    console.log("router.query:", router.query);
-  }, [searchParams]);
+    console.log("searchParams:", params);
+    console.log("router.query:", params.code);
+  }, [params]);
 
   useEffect(() => {
     if (!ref.current) {
       ref.current = true;
-      const code = searchParams?.code;
+      const code = params?.code;
       console.log(code);
       if (!code) {
         window.location.href = "/";
@@ -58,7 +50,7 @@ const RedirectPage: React.FC<Props> = ({ searchParams }) => {
       };
       fetchAuth();
     }
-  }, [searchParams]);
+  }, [params]);
 
   return (
     <div className="pt-12 flex justify-center">
@@ -67,6 +59,4 @@ const RedirectPage: React.FC<Props> = ({ searchParams }) => {
       </div>
     </div>
   );
-};
-
-export default RedirectPage;
+}
