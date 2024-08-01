@@ -15,6 +15,10 @@ const RedirectPage: React.FC<Props> = ({ searchParams }) => {
     if (!ref.current) {
       ref.current = true;
       const code = searchParams?.code;
+      console.log(code);
+      if (!code) {
+        window.location.href = "/";
+      }
       const fetchAuth = async () => {
         try {
           const response = await fetch(`/api/auth?code=${code}`, {
