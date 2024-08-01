@@ -2,23 +2,24 @@
 
 import React, { useEffect } from "react";
 
-export default function Page({ params }: { params: { code: string } }) {
-  const ref = React.useRef(false);
+type Props = {
+  searchParams?: {
+    code?: string;
+  };
+};
 
+export default ({ searchParams }: Props) => {
+  const ref = React.useRef(false);
   useEffect(() => {
-    console.log("Current URL:", window.location.href);
-    console.log("searchParams:", params);
-    console.log("router.query:", params.code);
-  }, [params]);
+    console.log("RedirectPage", window.location.href);
+    console.log("RedirectPage", searchParams);
+    console.log("code", searchParams?.code);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!ref.current) {
       ref.current = true;
-      const code = params?.code;
-      console.log(code);
-      if (!code) {
-        window.location.href = "/";
-      }
+      const code = searchParams?.code;
       const fetchAuth = async () => {
         try {
           const response = await fetch(`/api/auth?code=${code}`, {
@@ -50,7 +51,7 @@ export default function Page({ params }: { params: { code: string } }) {
       };
       fetchAuth();
     }
-  }, [params]);
+  }, [searchParams]);
 
   return (
     <div className="pt-12 flex justify-center">
@@ -59,4 +60,4 @@ export default function Page({ params }: { params: { code: string } }) {
       </div>
     </div>
   );
-}
+};
