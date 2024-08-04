@@ -1,7 +1,5 @@
-import { setUpOIDC } from "@/utils/openid/client";
-import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
+import { useEffect, useState } from "react";
 import FormProfile from "./FormProfile";
 import Skeleton from "./Skeleton";
 interface Profile {
@@ -14,49 +12,21 @@ interface Profile {
   last_name: string;
   birth_date: string;
 }
-export default async function EditProfile() {
-  const cookie = cookies();
-  const token = cookie.get("token")?.value;
-  const supabase = createClient();
-  const client = await setUpOIDC();
+export default function EditProfile(props: { props: Profile }) {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const { props: profileProps } = props;
 
-  let loading = true;
-  let profile: Profile = {} as Profile;
+  useEffect(() => {
+    setProfile(profileProps);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, [profileProps]);
+  console.log({ profile, loading });
 
-  let profileMatch = {};
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (token) {
-    const { sub } = await client.userinfo(token!);
-    profileMatch = { uniq_id: sub };
-  } else {
-    if (user) {
-      profileMatch = { user_id: user.id };
-    } else {
-      return redirect("/");
-    }
-  }
-
-  const { data } = await supabase
-    .from("profiles")
-    .select("*")
-    .match(profileMatch)
-    .single();
-
-  profile = data;
-  loading = false;
-
-  console.log({
-    profileMatch: profileMatch,
-    profile: profile,
-    loading: loading,
-  });
   if (loading) {
     return <Skeleton />;
   }
-  return <FormProfile props={profile} />;
+  return <FormProfile props={profile!} />;
 }

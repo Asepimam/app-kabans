@@ -45,6 +45,7 @@ export default function FormProfile({ props }: { props: FormProfileProps }) {
         return redirect("/");
       }
     }
+    console.log({ profileMatch: profileMatch });
 
     if (profileMatch) {
       const updates = {
@@ -105,7 +106,32 @@ export default function FormProfile({ props }: { props: FormProfileProps }) {
     }
     setImageUrl(null);
   };
+  const [dragging, setDragging] = useState(false);
 
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const fileInput = document.getElementById(
+        "dropzone-file",
+      ) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.files = e.dataTransfer.files;
+        const event = new Event("change", { bubbles: true });
+        fileInput.dispatchEvent(event);
+      }
+    }
+  };
+  console.log({ imageUrl });
   return (
     <div className="flex flex-col w-full items-center">
       <div className="flex w-full max-w-[800px] rounded-md bg-gray-800 p-8">
@@ -115,6 +141,9 @@ export default function FormProfile({ props }: { props: FormProfileProps }) {
             imageUrl={imageUrl!}
             initialImageUrl={props.avatar_url}
             onRemove={handleRemoveUpload}
+            onDragLeave={onDragLeave}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
           />
         </div>
         <div className="flex flex-col flex-1">

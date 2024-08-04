@@ -5,6 +5,9 @@ interface UploadAvatarProfileProps {
   imageUrl?: string;
   initialImageUrl?: string;
   onRemove?: () => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
 }
 
 const UploadAvatarProfile: React.FC<UploadAvatarProfileProps> = ({
@@ -12,9 +15,16 @@ const UploadAvatarProfile: React.FC<UploadAvatarProfileProps> = ({
   imageUrl,
   initialImageUrl,
   onRemove,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }) => {
   return (
-    <div className="flex items-center justify-center w-full">
+    <div
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      className="flex items-center justify-center w-full">
       <label
         htmlFor="dropzone-file"
         className="
