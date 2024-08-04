@@ -22,7 +22,6 @@ export default async function EditProfile() {
 
   let loading = true;
   let profile: Profile = {} as Profile;
-  let subUser = null;
 
   let profileMatch = {};
 
@@ -33,7 +32,6 @@ export default async function EditProfile() {
 
   if (token) {
     const { sub } = await client.userinfo(token!);
-    subUser = sub;
     profileMatch = { uniq_id: sub };
   } else {
     if (user) {
@@ -43,19 +41,20 @@ export default async function EditProfile() {
     }
   }
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("profiles")
     .select("*")
     .match(profileMatch)
     .single();
 
-  if (error) {
-    return redirect("/");
-  }
-
   profile = data;
   loading = false;
 
+  console.log({
+    profileMatch: profileMatch,
+    profile: profile,
+    loading: loading,
+  });
   if (loading) {
     return <Skeleton />;
   }

@@ -19,7 +19,7 @@ export type FormProfileProps = {
 export default function FormProfile({ props }: { props: FormProfileProps }) {
   const supabase = createClient();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-
+  console.log({ data_to_edited: props });
   const [form] = Form.useForm();
   form.setFieldsValue({
     firstName: props.first_name,
