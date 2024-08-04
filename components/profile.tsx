@@ -4,7 +4,16 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import FormProfile from "./FormProfile";
 import Skeleton from "./Skeleton";
-
+interface Profile {
+  uniq_id: string;
+  user_id: string;
+  avatar_url: string;
+  email: string;
+  full_name: string;
+  first_name: string;
+  last_name: string;
+  birth_date: string;
+}
 export default async function EditProfile() {
   const cookie = cookies();
   const token = cookie.get("token")?.value;
@@ -12,43 +21,43 @@ export default async function EditProfile() {
   const client = await setUpOIDC();
 
   let loading = true;
-  let profile = null;
+  let profile: Profile = {} as Profile;
   let subUser = null;
-  try {
-    let profileMatch = {};
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (token) {
-      const { sub } = await client.userinfo(token!);
-      subUser = sub;
-      profileMatch = { uniq_id: sub };
-    } else {
-      if (user) {
-        profileMatch = { user_id: user.id };
-      } else {
-        return redirect("/");
-      }
-    }
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .match(profileMatch)
-      .single();
-    if (error) {
+  let profileMatch = {};
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (token) {
+    const { sub } = await client.userinfo(token!);
+    subUser = sub;
+    profileMatch = { uniq_id: sub };
+  } else {
+    if (user) {
+      profileMatch = { user_id: user.id };
+    } else {
       return redirect("/");
     }
-    profile = data;
-    loading = false;
+  }
 
-    if (loading) {
-      return <Skeleton />;
-    }
-    return <FormProfile subUser={subUser!} {...profile} />;
-  } catch (error) {
-    console.error("Error in EditProfile function:", error);
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .match(profileMatch)
+    .single();
+
+  if (error) {
     return redirect("/");
   }
+
+  profile = data;
+  loading = false;
+
+  if (loading) {
+    return <Skeleton />;
+  }
+  return <FormProfile props={profile} />;
 }

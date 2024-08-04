@@ -10,11 +10,13 @@ export type FormProfileProps = {
   last_name: string;
   full_name: string;
   birth_date: string;
-  subUser: string;
+  uniq_id: string;
   avatar_url: string;
+  email: string;
+  user_id: string;
 };
 
-export default function FormProfile(props: FormProfileProps) {
+export default function FormProfile({ props }: { props: FormProfileProps }) {
   const supabase = createClient();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -30,15 +32,15 @@ export default function FormProfile(props: FormProfileProps) {
     const { firstName, lastName, fullName, birthDate } = values;
     let profileMatch = {};
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    // const {
+    //   data: { session },
+    // } = await supabase.auth.getSession();
 
-    if (props.subUser) {
-      profileMatch = { uniq_id: props.subUser };
+    if (props.uniq_id) {
+      profileMatch = { uniq_id: props.uniq_id };
     } else {
-      if (session) {
-        profileMatch = { user_id: session.user.id };
+      if (props.user_id) {
+        profileMatch = { user_id: props.user_id };
       } else {
         return redirect("/");
       }
@@ -57,7 +59,7 @@ export default function FormProfile(props: FormProfileProps) {
         .update(updates!)
         .match(profileMatch)
         .select();
-      console.log(data);
+
       if (error) {
         console.error("Error updating profile:", error);
         message.error("Error updating profile.");
