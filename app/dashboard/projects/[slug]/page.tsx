@@ -4,6 +4,7 @@ import { setUpOIDC } from "@/utils/openid/client";
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const cookie = await cookies();
@@ -11,25 +12,26 @@ export default async function Page({ params }: { params: { slug: string } }) {
   const client = await setUpOIDC();
   const supabase = await createClient();
   let userId: string = "";
-  let matchProfile = {};
-  if (!token) {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (user) {
-      matchProfile = { user_id: user.id };
-    }
-    console.error("Error in Dashboard function:", userError);
-  }
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  let profileMatch = {};
   if (token) {
     const { sub } = await client.userinfo(token!);
-    matchProfile = { uniq_id: sub };
+    profileMatch = { uniq_id: sub };
+  } else {
+    if (user) {
+      profileMatch = { user_id: user.id };
+    } else {
+      return redirect("/");
+    }
   }
   const { data, error } = await supabase
     .from("profiles")
     .select("id")
-    .match(matchProfile)
+    .match(profileMatch)
     .single();
   if (data) {
     userId = data.id;

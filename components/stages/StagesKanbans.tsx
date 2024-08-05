@@ -47,7 +47,7 @@ const StagesKanbans = ({ slug }: { slug: string }) => {
 
   return (
     <DndContext onDragEnd={handleOnDragEnd}>
-      <div className="flex justify-stretch">
+      <div className="flex justify-stretch ml-32">
         {stages?.map((stage) => (
           <Stage
             id_stage={stage.id}

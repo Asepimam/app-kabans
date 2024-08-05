@@ -54,7 +54,7 @@ export default function ModalCreateProject() {
 
   return (
     <>
-      <Button onClick={showModal} className="m-2">
+      <Button onClick={showModal} className="ml-32">
         Created
       </Button>
       <Modal

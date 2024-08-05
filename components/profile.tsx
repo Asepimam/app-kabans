@@ -23,10 +23,13 @@ export default function EditProfile(props: { props: Profile }) {
       setLoading(false);
     }, 2000);
   }, [profileProps]);
-  console.log({ profile, loading });
 
   if (loading) {
-    return <Skeleton />;
+    return (
+      <div className="ml-32">
+        <Skeleton />;
+      </div>
+    );
   }
   return <FormProfile props={profile!} />;
 }

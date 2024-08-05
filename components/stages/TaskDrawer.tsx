@@ -88,9 +88,11 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ create, task, id_stage }) => {
     }
     if (info.file.status === "done") {
       const file = info.file.originFileObj;
+      const rendomName = Math.random().toString(36).substring(7);
+      const fileName = file.name + "_" + rendomName;
       const { data, error } = await supabase.storage
         .from("uploads")
-        .upload(`public/${file.name}`, file);
+        .upload(`public/${fileName}`, file);
       if (error) {
         console.error("Error uploading file: ", error);
         message.error("Error uploading file");
@@ -98,12 +100,13 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ create, task, id_stage }) => {
       } else {
         const url = await supabase.storage
           .from("uploads")
-          .getPublicUrl(`public/${file.name}`);
+          .getPublicUrl(`public/${fileName}`);
         setImageUrl(url.data.publicUrl);
         message.success("File uploaded successfully");
       }
     }
   };
+
   return (
     <>
       <Button
@@ -198,7 +201,8 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ create, task, id_stage }) => {
                   <Upload
                     name="image"
                     listType="picture"
-                    onChange={handleUpload}>
+                    onChange={handleUpload}
+                    onRemove={deleteUpload}>
                     <Button icon={<IoMdCloudUpload />}>Click to upload</Button>
                   </Upload>
                   {imageUrl && (

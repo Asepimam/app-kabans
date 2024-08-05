@@ -79,7 +79,6 @@ export default function Messages({ task, drawerOpen }: MessagesProps) {
     if (error) {
       console.error("Failed to fetch messages:", error);
     } else {
-      console.log("messages", messages);
       setMessages(messages);
     }
   };

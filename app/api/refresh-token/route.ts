@@ -1,3 +1,4 @@
+
 import { setUpOIDC } from '@/utils/openid/client';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -8,7 +9,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     // Mengambil refresh token dari body request
     const { refresh_token } = body;
-    console.log(refresh_token);
+    
 
     if (!refresh_token) {
       return NextResponse.json({ error: 'Refresh token not found' }, { status: 400 });

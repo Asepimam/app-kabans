@@ -19,7 +19,7 @@ export type FormProfileProps = {
 export default function FormProfile({ props }: { props: FormProfileProps }) {
   const supabase = createClient();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  console.log({ data_to_edited: props });
+
   const [form] = Form.useForm();
   form.setFieldsValue({
     firstName: props.first_name,
@@ -45,7 +45,6 @@ export default function FormProfile({ props }: { props: FormProfileProps }) {
         return redirect("/");
       }
     }
-    console.log({ profileMatch: profileMatch });
 
     if (profileMatch) {
       const updates = {
@@ -131,7 +130,7 @@ export default function FormProfile({ props }: { props: FormProfileProps }) {
       }
     }
   };
-  console.log({ imageUrl });
+
   return (
     <div className="flex flex-col w-full items-center">
       <div className="flex w-full max-w-[800px] rounded-md bg-gray-800 p-8">

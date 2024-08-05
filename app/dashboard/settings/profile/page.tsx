@@ -3,6 +3,7 @@ import { setUpOIDC } from "@/utils/openid/client";
 import { createClient } from "@/utils/supabase/server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 interface Profile {
   uniq_id: string;
   user_id: string;
@@ -14,19 +15,18 @@ interface Profile {
   birth_date: string;
 }
 export default async function Profile() {
-  const cookie = cookies();
-  const token = cookie.get("token")?.value;
   const supabase = createClient();
   const client = await setUpOIDC();
+  const token = await cookies().get("token")?.value;
 
   let profile: Profile = {} as Profile;
-
-  let profileMatch = {};
 
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
+
+  let profileMatch = {};
 
   if (token) {
     const { sub } = await client.userinfo(token!);
@@ -34,10 +34,11 @@ export default async function Profile() {
   } else {
     if (user) {
       profileMatch = { user_id: user.id };
+    } else {
+      return redirect("/");
     }
   }
-
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .match(profileMatch)
@@ -45,13 +46,11 @@ export default async function Profile() {
 
   profile = data;
 
-  console.log({
-    profileMatch: profileMatch,
-    profile: profile,
-  });
   return (
-    <div className="flex flex-col w-full p-4">
-      <EditProfile props={profile} />;
+    <div className="flex justify-center items-center w-full h-full">
+      <div className="flex flex-col w-full p-4">
+        <EditProfile props={profile} />;
+      </div>
     </div>
   );
 }

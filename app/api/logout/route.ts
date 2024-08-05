@@ -11,9 +11,6 @@ export async function GET(request:Request) {
   const url = new URL(request.url);
   const origin = url.origin;
   
-  // jika dari supabase
-  await supabase.auth.signOut();
-
   if(token){
     await setUpOIDC().then((client) => {
       client.revoke(token);
@@ -21,8 +18,13 @@ export async function GET(request:Request) {
       cookies().delete('token');
       cookies().delete('refresh_token');
     })
+  }else{
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if(user){
+      await supabase.auth.signOut();
+    }
   }
-
+  
   // prettier-ignore
-  return  NextResponse.redirect(origin);
+  return  NextResponse.json({ message: "logout" }, {status: 200});
 }

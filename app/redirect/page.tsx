@@ -10,11 +10,6 @@ type Props = {
 
 export default ({ searchParams }: Props) => {
   const ref = React.useRef(false);
-  useEffect(() => {
-    console.log("RedirectPage", window.location.href);
-    console.log("RedirectPage", searchParams);
-    console.log("code", window.location.href.split("code=")[1]);
-  }, [searchParams]);
 
   useEffect(() => {
     if (!ref.current) {
@@ -32,7 +27,6 @@ export default ({ searchParams }: Props) => {
           }
 
           const data = await response.json();
-          console.log(data);
 
           if (data.success) {
             const verifyResponse = await fetch("/api/verifyUsers", {

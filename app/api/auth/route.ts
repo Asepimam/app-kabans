@@ -8,11 +8,11 @@ export async function GET(request: Request ) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   
-  console.log(code)
+  
   // Try to get assess_Token from IBM server, if get code. If success, generate a respond to save the token, else tell user failed
   if (code != null) {
     const url = `${process.env.REDIRECT_URI}?code=${code}`;
-    console.log(url);
+    
     const client = await setUpOIDC();
     const params = client.callbackParams(url);
     const code_verifier = cookies().get('cv')?.value;

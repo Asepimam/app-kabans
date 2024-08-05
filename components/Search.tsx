@@ -11,7 +11,6 @@ const SearchComponent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-    console.log(info?.source, value);
     setSearchQuery(value);
     fetchProjects(value);
   };

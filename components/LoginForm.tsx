@@ -33,7 +33,6 @@ export const LoginButtons = () => {
       console.error(error);
       return;
     }
-    console.log(data);
   };
 
   const loginGithub = async () => {

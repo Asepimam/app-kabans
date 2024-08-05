@@ -41,7 +41,6 @@ const LinkPreview = ({ url }: { url: string }) => {
     };
     fetchData();
   }, [url]);
-  console.log(previewData);
 
   return (
     <a

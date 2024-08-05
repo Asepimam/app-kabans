@@ -3,9 +3,26 @@ import Link from "next/link";
 
 import { FaHome } from "react-icons/fa";
 import { GoProjectRoadmap } from "react-icons/go";
-import { IoSettingsOutline } from "react-icons/io5";
+import { IoLogOutOutline, IoPerson, IoSettingsOutline } from "react-icons/io5";
 
 type MenuItem = Required<MenuProps>["items"][number];
+
+const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+  await fetch("/api/logout", {
+    method: "GET",
+  })
+    .then((response) => {
+      if (response.ok) {
+        window.location.href = "/";
+      } else {
+        console.error("Logout failed");
+      }
+    })
+    .catch((error) => {
+      console.error("Logout failed", error);
+    });
+};
 
 export const MENU_ITEMS: MenuItem[] = [
   {
@@ -33,6 +50,7 @@ export const MENU_ITEMS: MenuItem[] = [
     children: [
       {
         key: "Setting_profile",
+        icon: <IoPerson />,
         label: (
           <Link
             href="/dashboard/settings/profile"
@@ -42,14 +60,17 @@ export const MENU_ITEMS: MenuItem[] = [
           </Link>
         ),
       },
-      {
-        key: "Setting_logout",
-        label: (
-          <Link href="/api/logout" target="_self" rel="noopener noreferrer">
-            Logout
-          </Link>
-        ),
-      },
     ],
+  },
+  {
+    key: "logout",
+    label: (
+      <button
+        className="w-full h-full flex justify-start items-center gap-2"
+        onClick={handleClick}>
+        <IoLogOutOutline className="w-4 h-4" />{" "}
+        <span className="ml-2">Logout</span>
+      </button>
+    ),
   },
 ];

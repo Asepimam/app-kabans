@@ -2,6 +2,7 @@ import { setUpOIDC } from "@/utils/openid/client";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import LogoutButton from "./LogoutButton";
 
 export default async function AuthButton() {
   const supabase = createClient();
@@ -34,11 +35,7 @@ export default async function AuthButton() {
   return user ? (
     <div className="flex items-center gap-4">
       👋 Hey, {user.full_name}!
-      <Link
-        href="/api/logout"
-        className="py-2 px-3 flex rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
-        LogOut
-      </Link>
+      <LogoutButton />
     </div>
   ) : (
     <div className="flex items-center gap-4">
